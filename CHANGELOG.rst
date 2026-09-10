@@ -1,6 +1,7 @@
 v4.27.0
 =======
 
+* The ``regex`` format checker now reports conflicting inline flags, deeply nested patterns, and oversized repeat counts as invalid instances instead of letting ``ValueError``, ``RecursionError``, or ``OverflowError`` escape from ``re.compile`` (#1526, #1538, #1558).
 * Improve ``best_match`` for ``anyOf`` / ``oneOf`` errors: the most relevant error is now found within each subschema separately before the deepest of those is picked (#1257, #1300).
   In particular an applicator with a single subschema now produces the same best match as the bare subschema would.
   ``relevance`` no longer considers an error's position amongst its siblings.

@@ -89,3 +89,33 @@ class TestFormatChecker(TestCase):
             repr(checker),
             "<FormatChecker checkers=['bar', 'baz', 'foo']>",
         )
+
+    def test_regex_format_rejects_unterminated_pattern(self):
+        checker = FormatChecker()
+        with self.assertRaises(FormatError):
+            checker.check("[unterminated", "regex")
+        self.assertFalse(checker.conforms("[unterminated", "regex"))
+
+    def test_regex_format_rejects_conflicting_inline_flags(self):
+        checker = FormatChecker()
+        for pattern in ("(?u)(?a)", "(?a)(?u)"):
+            with self.assertRaises(FormatError):
+                checker.check(pattern, "regex")
+            self.assertFalse(checker.conforms(pattern, "regex"))
+
+    def test_regex_format_rejects_deeply_nested_pattern(self):
+        checker = FormatChecker()
+        pattern = "(" * 500
+        with self.assertRaises(FormatError):
+            checker.check(pattern, "regex")
+        self.assertFalse(checker.conforms(pattern, "regex"))
+
+    def test_regex_format_rejects_overflowing_repeat_count(self):
+        checker = FormatChecker()
+        with self.assertRaises(FormatError):
+            checker.check("a{99999999999999}", "regex")
+        self.assertFalse(checker.conforms("a{99999999999999}", "regex"))
+
+    def test_regex_format_accepts_valid_pattern(self):
+        checker = FormatChecker()
+        self.assertTrue(checker.conforms(r"^\d+$", "regex"))
